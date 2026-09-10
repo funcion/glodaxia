@@ -49,7 +49,8 @@ class UserResource extends Resource
                             ->label('Correo Electrónico')
                             ->email()
                             ->required()
-                            ->unique(User::class, 'email', ignoreRecord: true),
+                            ->unique(User::class, 'email', ignoreRecord: true)
+                            ->columnSpanFull(),
                         TextInput::make('current_password')
                             ->label('Contraseña Actual')
                             ->password()
@@ -79,10 +80,18 @@ class UserResource extends Resource
                         TextInput::make('slug')
                             ->label('Slug / Identificador')
                             ->required()
-                            ->unique(User::class, 'slug', ignoreRecord: true),
+                            ->unique(User::class, 'slug', ignoreRecord: true)
+                            ->columnSpan([
+                                'default' => 2,
+                                'md' => 1,
+                            ]),
                         Toggle::make('is_active')
                             ->label('Cuenta Activa')
-                            ->default(true),
+                            ->default(true)
+                            ->columnSpan([
+                                'default' => 2,
+                                'md' => 1,
+                            ]),
                         FileUpload::make('avatar_url')
                             ->label('Avatar / Foto de Perfil')
                             ->image()

@@ -63,9 +63,11 @@ class EditProfile extends BaseEditProfile
                     ->description('Actualiza tus datos de identificación y foto de perfil.')
                     ->schema([
                         $this->getNameFormComponent()
-                            ->label('Nombre Completo'),
+                            ->label('Nombre Completo')
+                            ->columnSpanFull(),
                         $this->getEmailFormComponent()
-                            ->label('Correo Electrónico'),
+                            ->label('Correo Electrónico')
+                            ->columnSpanFull(),
                         FileUpload::make('avatar_url')
                             ->label('Avatar / Foto de Perfil')
                             ->image()
@@ -75,7 +77,7 @@ class EditProfile extends BaseEditProfile
                             ->maxSize(5120)
                             ->columnSpanFull(),
                     ])
-                    ->columns(2),
+                    ->columns(1),
 
                 Section::make('Seguridad de la Cuenta')
                     ->description('Para cambiar tu contraseña actual, ingresa tu contraseña actual para verificar tu identidad y luego define la nueva.')
@@ -84,7 +86,7 @@ class EditProfile extends BaseEditProfile
                         $this->getPasswordFormComponent(),
                         $this->getPasswordConfirmationFormComponent(),
                     ])
-                    ->columns(1),
+                    ->columns(2),
             ]);
     }
 
@@ -99,6 +101,7 @@ class EditProfile extends BaseEditProfile
             ->required()
             ->visible(fn (Get $get): bool => filled($get('password')) || ($get('email') !== $this->getUser()->getAttributeValue('email')))
             ->dehydrated(false)
+            ->columnSpanFull()
             ->helperText('Requerida para autorizar cambios en tu contraseña o correo electrónico.');
     }
 
@@ -114,6 +117,10 @@ class EditProfile extends BaseEditProfile
             ->dehydrateStateUsing(fn (#[SensitiveParameter] $state): string => Hash::make($state))
             ->live(debounce: 500)
             ->same('passwordConfirmation')
+            ->columnSpan([
+                'default' => 2,
+                'md' => 1,
+            ])
             ->helperText('Deja este campo vacío si deseas mantener tu contraseña actual.');
     }
 
@@ -126,6 +133,10 @@ class EditProfile extends BaseEditProfile
             ->revealable()
             ->required()
             ->visible(fn (Get $get): bool => filled($get('password')))
+            ->columnSpan([
+                'default' => 2,
+                'md' => 1,
+            ])
             ->dehydrated(false);
     }
 }
