@@ -52,6 +52,19 @@ class EditProfile extends BaseEditProfile
             unset($data['name']);
         }
 
+        if (filled($data['password'] ?? null)) {
+            $record->password = Hash::make($data['password']);
+            $record->save();
+
+            if (request()->hasSession()) {
+                request()->session()->put([
+                    'password_hash_' . \Filament\Facades\Filament::getAuthGuard() => $record->password,
+                ]);
+            }
+
+            unset($data['password']);
+        }
+
         return parent::handleRecordUpdate($record, $data);
     }
 
@@ -113,8 +126,6 @@ class EditProfile extends BaseEditProfile
             ->rule(Password::default())
             ->autocomplete('new-password')
             ->dehydrated(fn (#[SensitiveParameter] $state): bool => filled($state))
-            ->dehydrateStateUsing(fn (#[SensitiveParameter] $state): string => Hash::make($state))
-            ->live(debounce: 500)
             ->same('passwordConfirmation')
             ->columnSpan([
                 'default' => 2,

@@ -68,7 +68,6 @@ class UserResource extends Resource
                             ->same('password_confirmation')
                             ->rule(Password::default())
                             ->dehydrated(fn ($state) => filled($state))
-                            ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                             ->required(fn (string $context): bool => $context === 'create')
                             ->columnSpan([
                                 'default' => 2,

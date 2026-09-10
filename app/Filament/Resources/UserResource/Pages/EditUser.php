@@ -35,10 +35,20 @@ class EditUser extends EditRecord
             }
         }
 
+        if (filled($data['password'] ?? null)) {
+            $record->password = \Illuminate\Support\Facades\Hash::make($data['password']);
+        }
+
         $record->save();
 
-        // Remove virtual fields from $data to prevent Filament from trying to set them directly
-        unset($data['name_en'], $data['name_es'], $data['bio_en'], $data['bio_es']);
+        if (request()->hasSession() && auth()->id() === $record->id && filled($data['password'] ?? null)) {
+            request()->session()->put([
+                'password_hash_' . \Filament\Facades\Filament::getAuthGuard() => $record->password,
+            ]);
+        }
+
+        // Remove virtual and password fields from $data to prevent Filament from trying to set them directly
+        unset($data['name_en'], $data['name_es'], $data['bio_en'], $data['bio_es'], $data['password']);
 
         return $data;
     }
