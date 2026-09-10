@@ -43,6 +43,9 @@ class OpenRouterService
                 'model' => $model,
                 'messages' => $messages,
                 'temperature' => 0.7,
+                'provider' => [
+                    'allow_fallbacks' => false,
+                ],
             ], $options));
 
             if ($response->failed()) {

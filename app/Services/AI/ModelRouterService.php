@@ -31,12 +31,11 @@ class ModelRouterService
             return [$default];
         }
 
-        // Ensure default model is strictly first in priority
         if ($default && in_array($default, $pool)) {
             $pool = array_values(array_unique(array_merge([$default], $pool)));
         }
 
-        return array_values($pool);
+        return array_values(array_unique($pool));
     }
 
     /**
@@ -49,7 +48,11 @@ class ModelRouterService
     {
         $available = array_values(array_diff($this->getPool(), $exclude));
 
-        return $available[0] ?? null;
+        if (empty($available)) {
+            return null;
+        }
+
+        return $available[array_rand($available)];
     }
 
     /**

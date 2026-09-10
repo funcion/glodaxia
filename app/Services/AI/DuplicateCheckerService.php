@@ -208,10 +208,14 @@ Responde UNICAMENTE con una palabra: FUSIONAR, DESCARTAR o PUBLICAR.
 JUDGE_PROMPT;
 
         try {
-            $response = $this->ai->complete($prompt, [
-                'temperature' => 0.0,
-                'max_tokens'  => 10,
-            ]);
+            $response = $this->ai->complete(
+                [['role' => 'user', 'content' => $prompt]],
+                config('ai_models.default'),
+                [
+                    'temperature' => 0.0,
+                    'max_tokens'  => 10,
+                ]
+            );
 
             $cleanVerdict = strtoupper(trim(preg_replace('/[^A-Z]/', '', $response ?? 'PUBLICAR')));
             if (in_array($cleanVerdict, ['FUSIONAR', 'DESCARTAR', 'PUBLICAR'])) {

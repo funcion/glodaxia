@@ -20,7 +20,7 @@ return [
     | 4. qwen/qwen3.8-flash            (Next-gen Qwen speed & context)
     | 5. meta-llama/llama-4-scout      (Meta Llama 4 high-speed editorial)
     | 6. meta-llama/llama-4-maverick   (Meta Llama 4 deep context)
-    | 7. bytedance-seed/seed-1.6       (ByteDance robust failover)
+    | 7. bytedance-seed/seed-1.6-flash (ByteDance robust flash failover)
     */
     'pool' => [
         'deepseek/deepseek-v4-flash',
@@ -29,7 +29,7 @@ return [
         'qwen/qwen3.8-flash',
         'meta-llama/llama-4-scout',
         'meta-llama/llama-4-maverick',
-        'bytedance-seed/seed-1.6',
+        'bytedance-seed/seed-1.6-flash',
     ],
 
     /*
@@ -62,8 +62,8 @@ return [
             'name'  => 'Llama 4 Maverick',
             'color' => 'info',
         ],
-        'bytedance-seed/seed-1.6' => [
-            'name'  => 'Seed 1.6',
+        'bytedance-seed/seed-1.6-flash' => [
+            'name'  => 'Seed 1.6 Flash',
             'color' => 'primary',
         ],
         // Legacy / Compatibility aliases
