@@ -97,12 +97,11 @@ class EditProfile extends BaseEditProfile
             ->password()
             ->revealable()
             ->autocomplete('current-password')
-            ->currentPassword(guard: \Filament\Facades\Filament::getAuthGuard())
-            ->required()
-            ->visible(fn (Get $get): bool => filled($get('password')) || ($get('email') !== $this->getUser()->getAttributeValue('email')))
+            ->currentPassword(condition: fn (Get $get): bool => filled($get('password')), guard: \Filament\Facades\Filament::getAuthGuard())
+            ->required(fn (Get $get): bool => filled($get('password')))
             ->dehydrated(false)
             ->columnSpanFull()
-            ->helperText('Requerida para autorizar cambios en tu contraseña o correo electrónico.');
+            ->helperText('Ingresa tu contraseña actual solo si deseas cambiarla.');
     }
 
     protected function getPasswordFormComponent(): Component
@@ -131,8 +130,7 @@ class EditProfile extends BaseEditProfile
             ->password()
             ->autocomplete('new-password')
             ->revealable()
-            ->required()
-            ->visible(fn (Get $get): bool => filled($get('password')))
+            ->required(fn (Get $get): bool => filled($get('password')))
             ->columnSpan([
                 'default' => 2,
                 'md' => 1,

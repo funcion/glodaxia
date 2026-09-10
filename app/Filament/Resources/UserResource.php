@@ -55,10 +55,11 @@ class UserResource extends Resource
                             ->label('Contraseña Actual')
                             ->password()
                             ->revealable()
-                            ->currentPassword()
+                            ->currentPassword(condition: fn (Get $get): bool => filled($get('password')))
                             ->visible(fn (string $context, ?User $record): bool => $context === 'edit' && auth()->id() === $record?->id)
                             ->required(fn (Get $get): bool => filled($get('password')))
                             ->dehydrated(false)
+                            ->columnSpanFull()
                             ->helperText('Ingresa tu contraseña actual para autorizar el cambio.'),
                         TextInput::make('password')
                             ->label(fn (string $context): string => $context === 'create' ? 'Contraseña' : 'Nueva Contraseña')
@@ -69,13 +70,20 @@ class UserResource extends Resource
                             ->dehydrated(fn ($state) => filled($state))
                             ->dehydrateStateUsing(fn ($state) => Hash::make($state))
                             ->required(fn (string $context): bool => $context === 'create')
+                            ->columnSpan([
+                                'default' => 2,
+                                'md' => 1,
+                            ])
                             ->helperText(fn (string $context): ?string => $context === 'edit' ? 'Déjalo vacío para mantener la contraseña actual.' : null),
                         TextInput::make('password_confirmation')
                             ->label('Confirmar Nueva Contraseña')
                             ->password()
                             ->revealable()
                             ->required(fn (string $context, Get $get): bool => $context === 'create' || filled($get('password')))
-                            ->visible(fn (string $context, Get $get): bool => $context === 'create' || filled($get('password')))
+                            ->columnSpan([
+                                'default' => 2,
+                                'md' => 1,
+                            ])
                             ->dehydrated(false),
                         TextInput::make('slug')
                             ->label('Slug / Identificador')
