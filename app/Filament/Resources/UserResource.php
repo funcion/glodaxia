@@ -22,6 +22,8 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Filament\Schemas\Components\Utilities\Get;
+use Illuminate\Validation\Rules\Password;
 
 class UserResource extends Resource
 {
@@ -48,12 +50,32 @@ class UserResource extends Resource
                             ->email()
                             ->required()
                             ->unique(User::class, 'email', ignoreRecord: true),
-                        TextInput::make('password')
-                            ->label('Contraseña')
+                        TextInput::make('current_password')
+                            ->label('Contraseña Actual')
                             ->password()
+                            ->revealable()
+                            ->currentPassword()
+                            ->visible(fn (string $context, ?User $record): bool => $context === 'edit' && auth()->id() === $record?->id)
+                            ->required(fn (Get $get): bool => filled($get('password')))
+                            ->dehydrated(false)
+                            ->helperText('Ingresa tu contraseña actual para autorizar el cambio.'),
+                        TextInput::make('password')
+                            ->label(fn (string $context): string => $context === 'create' ? 'Contraseña' : 'Nueva Contraseña')
+                            ->password()
+                            ->revealable()
+                            ->same('password_confirmation')
+                            ->rule(Password::default())
                             ->dehydrated(fn ($state) => filled($state))
                             ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                            ->required(fn (string $context): bool => $context === 'create'),
+                            ->required(fn (string $context): bool => $context === 'create')
+                            ->helperText(fn (string $context): ?string => $context === 'edit' ? 'Déjalo vacío para mantener la contraseña actual.' : null),
+                        TextInput::make('password_confirmation')
+                            ->label('Confirmar Nueva Contraseña')
+                            ->password()
+                            ->revealable()
+                            ->required(fn (string $context, Get $get): bool => $context === 'create' || filled($get('password')))
+                            ->visible(fn (string $context, Get $get): bool => $context === 'create' || filled($get('password')))
+                            ->dehydrated(false),
                         TextInput::make('slug')
                             ->label('Slug / Identificador')
                             ->required()
