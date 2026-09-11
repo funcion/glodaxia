@@ -99,7 +99,13 @@ class ProcessArticleWithAIJob implements ShouldQueue, ShouldBeUnique
                 'response' => $e->getResponseBody(),
             ]);
             OpenRouterCircuitBreaker::recordFailure();
-            $this->rawArticle->update(['status' => 'failed']);
+            $meta = $this->rawArticle->metadata ?? [];
+            $meta['last_error'] = [
+                'message'   => 'Error 401 en OpenRouter: clave de API inválida o expirada.',
+                'exception' => 'OpenRouterAuthenticationException',
+                'failed_at' => now()->toIso8601String(),
+            ];
+            $this->rawArticle->update(['status' => 'failed', 'metadata' => $meta]);
             return; // Don't throw — prevents Laravel from retrying a permanent error
         }
 
@@ -224,7 +230,13 @@ class ProcessArticleWithAIJob implements ShouldQueue, ShouldBeUnique
                 'response' => $e->getResponseBody(),
             ]);
             OpenRouterCircuitBreaker::recordFailure();
-            $this->rawArticle->update(['status' => 'failed']);
+            $meta = $this->rawArticle->metadata ?? [];
+            $meta['last_error'] = [
+                'message'   => 'Error 401 en OpenRouter: clave de API inválida durante la redacción.',
+                'exception' => 'OpenRouterAuthenticationException',
+                'failed_at' => now()->toIso8601String(),
+            ];
+            $this->rawArticle->update(['status' => 'failed', 'metadata' => $meta]);
             return;
         }
 
@@ -1411,7 +1423,17 @@ PROMPT;
         $isAuth = $exception instanceof OpenRouterAuthenticationException;
         $isPermanent = $isAuth || str_contains($exception->getMessage(), '401');
 
-        $this->rawArticle->update(['status' => 'failed']);
+        $metadata = $this->rawArticle->metadata ?? [];
+        $metadata['last_error'] = [
+            'message'   => \Illuminate\Support\Str::limit($exception->getMessage(), 350),
+            'exception' => class_basename($exception),
+            'failed_at' => now()->toIso8601String(),
+        ];
+
+        $this->rawArticle->update([
+            'status'   => 'failed',
+            'metadata' => $metadata,
+        ]);
 
         Log::error("Job failed for RawArticle {$this->rawArticle->id}: {$exception->getMessage()}", [
             'permanent'    => $isPermanent,

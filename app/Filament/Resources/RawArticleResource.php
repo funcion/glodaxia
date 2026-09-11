@@ -121,6 +121,7 @@ class RawArticleResource extends Resource
                     })
                     ->tooltip(fn (RawArticle $record) => $record->metadata['curation']['reason'] ?? 'Sin evaluación editorial previa.'),
                 Tables\Columns\TextColumn::make('status')
+                    ->label('Estado')
                     ->badge()
                     ->color(fn (string $state): string => match ($state) {
                         'pending' => 'gray',
@@ -128,6 +129,22 @@ class RawArticleResource extends Resource
                         'processed' => 'success',
                         'ignored' => 'warning',
                         'failed' => 'danger',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'pending' => 'Pendiente',
+                        'processing' => 'Procesando',
+                        'processed' => 'Procesada',
+                        'ignored' => 'Ignorada',
+                        'failed' => 'Fallida',
+                        default => ucfirst($state),
+                    })
+                    ->tooltip(fn (RawArticle $record): ?string => match ($record->status) {
+                        'failed' => '❌ Fallo: ' . ($record->metadata['last_error']['message'] ?? 'Error durante el procesamiento con IA.'),
+                        'ignored' => '⚠️ Descarte: ' . ($record->metadata['curation']['reason'] ?? 'Descartada por los filtros editoriales.'),
+                        'processed' => '✅ Procesada y generada correctamente.',
+                        'processing' => '⏳ En cola de redacción con IA...',
+                        default => null,
                     }),
                 Tables\Columns\TextColumn::make('ai_model')
                     ->label('Modelo IA')
@@ -224,6 +241,27 @@ class RawArticleResource extends Resource
             ])
             ->bulkActions([
                 \Filament\Actions\BulkActionGroup::make([
+                    \Filament\Actions\BulkAction::make('reprocesar_lote_ia')
+                        ->label('⚡ Re-procesar con IA (Lote)')
+                        ->icon('heroicon-o-sparkles')
+                        ->color('warning')
+                        ->requiresConfirmation()
+                        ->modalHeading('Re-procesar noticias seleccionadas con IA')
+                        ->modalDescription('Las noticias seleccionadas se enviarán a la cola de redacción con retardo escalonado de 3 segundos entre cada una para proteger los límites de API.')
+                        ->action(function (\Illuminate\Database\Eloquent\Collection $records) {
+                            $count = $records->count();
+                            foreach ($records->values() as $index => $record) {
+                                $record->update(['status' => 'pending']);
+                                ProcessArticleWithAIJob::dispatch($record, true)
+                                    ->delay(now()->addSeconds($index * 3));
+                            }
+
+                            Notification::make()
+                                ->title("⚡ {$count} noticias enviadas a la cola de IA")
+                                ->body('Se están procesando de forma escalonada con redacción profesional.')
+                                ->success()
+                                ->send();
+                        }),
                     \Filament\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

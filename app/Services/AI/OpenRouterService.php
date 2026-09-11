@@ -60,6 +60,11 @@ class OpenRouterService
                     );
                 }
 
+                if ($response->status() === 429) {
+                    Log::warning("OpenRouter Rate Limit (429) hit. Pausing 5 seconds for backoff...");
+                    sleep(5);
+                }
+
                 return null;
             }
 
