@@ -112,21 +112,21 @@ return [
             'reading_time_wpm' => 200,
             'raw_preview_chars' => 2000,
             'min_words' => [
-                'news'   => 800,
-                'blog'   => 900,
-                'guide'  => 1200,
-                'review' => 900,
-                'pillar' => 1600,
+                'news'   => 500,
+                'blog'   => 650,
+                'guide'  => 900,
+                'review' => 700,
+                'pillar' => 1200,
             ],
         ],
 
         // Word count targets per content type (for prompt context)
         'word_targets' => [
-            'news'   => '800-1200 words EN | 800-1200 palabras ES (Mínimo estricto: 800 palabras)',
-            'blog'   => '900-1500 words EN | 900-1500 palabras ES (Mínimo estricto: 900 palabras)',
-            'guide'  => '1200-2000 words EN | 1200-2000 palabras ES (Mínimo estricto: 1200 palabras)',
-            'review' => '900-1500 words EN | 900-1500 palabras ES (Mínimo estricto: 900 palabras)',
-            'pillar' => '1600-2800 words EN | 1600-2800 palabras ES (Mínimo estricto: 1600 palabras)',
+            'news'   => '600-1000 words EN | 600-1000 palabras ES (Mínimo: 500 palabras)',
+            'blog'   => '700-1200 words EN | 700-1200 palabras ES (Mínimo: 650 palabras)',
+            'guide'  => '900-1600 words EN | 900-1600 palabras ES (Mínimo: 900 palabras)',
+            'review' => '700-1200 words EN | 700-1200 palabras ES (Mínimo: 700 palabras)',
+            'pillar' => '1200-2200 words EN | 1200-2200 palabras ES (Mínimo: 1200 palabras)',
         ],
 
         // -------------------------------------------------------------------

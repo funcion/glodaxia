@@ -64,10 +64,13 @@ class OpenRouterService
             }
 
             $data = $response->json();
-            $content = $data['choices'][0]['message']['content'] ?? null;
+            $choice = $data['choices'][0] ?? null;
+            $content = $choice['message']['content'] ?? null;
 
             if (!$content) {
-                Log::error("OpenRouter Error: Respuesta vacía o mal formada", ['data' => $data]);
+                $finishReason = $choice['finish_reason'] ?? 'unknown';
+                $hasReasoning = !empty($choice['message']['reasoning']);
+                Log::error("OpenRouter Error: Respuesta vacía o mal formada (finish_reason: {$finishReason}, reasoning: " . ($hasReasoning ? 'YES' : 'NO') . ")", ['data' => $data]);
                 return null;
             }
 

@@ -82,9 +82,9 @@ return [
     | Token Limits & Performance Tuners
     |--------------------------------------------------------------------------
     */
-    'max_tokens'                => 10000,
-    'classification_max_tokens' => 1500,
-    'tag_max_tokens'            => 500,
+    'max_tokens'                => 14000,
+    'classification_max_tokens' => 3500,
+    'tag_max_tokens'            => 1000,
     'temperature'               => 0.7,
-    'timeout'                   => 180,
+    'timeout'                   => 300,
 ];

@@ -817,7 +817,7 @@ PROMPT;
 
         $authorBioEs = $author->getTranslation('bio', 'es') ?: $author->bio;
 
-        $minArticleWords = (int) config('global.editorial.limits.min_words.news', 800);
+        $minArticleWords = (int) config('global.editorial.limits.min_words.news', 500);
         $titleMinChars    = (int) config('global.editorial.limits.title.min', 50);
         $titleMaxChars    = (int) config('global.editorial.limits.title.max', 130);
         $titleMinWords    = (int) config('global.editorial.limits.title.min_words', 7);
@@ -1173,16 +1173,16 @@ PROMPT;
             }
         }
 
-        // 6. Strict Word Count Validation (Dynamic strict minimum from config, default: 800 words)
-        $minArticleWords = (int) config('global.editorial.limits.min_words.news', 800);
-        $wordsEn = str_word_count(strip_tags($contentEn));
-        $wordsEs = str_word_count(strip_tags($contentEs));
+        // 6. Word Count Validation (Unicode-aware word count, minimum 500 words)
+        $minArticleWords = (int) config('global.editorial.limits.min_words.news', 500);
+        $wordsEn = count(preg_split('/\s+/u', trim(strip_tags($contentEn)), -1, PREG_SPLIT_NO_EMPTY));
+        $wordsEs = count(preg_split('/\s+/u', trim(strip_tags($contentEs)), -1, PREG_SPLIT_NO_EMPTY));
 
         if ($wordsEn < $minArticleWords) {
-            $errors[] = "content_en has only {$wordsEn} words (STRICT minimum is {$minArticleWords} words). The article is too thin — expand depth, analysis, and context.";
+            $errors[] = "content_en has only {$wordsEn} words (minimum is {$minArticleWords} words). The article is too thin — expand depth, analysis, and context.";
         }
         if ($wordsEs < $minArticleWords) {
-            $errors[] = "content_es has only {$wordsEs} words (STRICT minimum is {$minArticleWords} words). El artículo es demasiado corto — expandir análisis, contexto y profundidad.";
+            $errors[] = "content_es has only {$wordsEs} words (minimum is {$minArticleWords} words). El artículo es demasiado corto — expandir análisis, contexto y profundidad.";
         }
 
         // 7. Check for blocked AI-fingerprint phrases (WARNING ONLY — auto-fixed in autoFixRedactedOutput)
